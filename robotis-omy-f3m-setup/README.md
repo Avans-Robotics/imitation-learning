@@ -17,16 +17,28 @@ https://ai.robotis.com/omy/dataset_preparation_prerequisites_omy.html
 **TLDR;**
 
 - Give power to Robot and leader arm
-- Turn on Robot base and run the docker
+- Turn on Robot base computer
+***Automatic***:
+To start the system, run the start_omy script and point the browser of the PC to `http://localhost`:
+`./start_omy.sh'
+To stop the system, run the stop_omy script
+`./stop_omy.sh'
+
+***Manual***:
+- Run the docker on the robot base
   - SSH into robot base and run the open_manipulator docker (usually `ssh root@192.168.0.145`)
   - `ros2 launch open_manipulator_bringup unpack.launch.py`
   - `ros2 launch open_manipulator_bringup omy_ai.launch.py`
+- Run the zenoh router process
 - Run the camera stream from the open manipulator dir (`ros2 launch realsense2_camera rs_multi_camera_launch.py [camera parameters]`
 - Run the AI server from the physical ai tools dir (`ai_server`)
 - Use a huggingface account to create link for policy training
 - Start data collection for a policy
 - Train the policy
 - Do inference
+
+***Turn OFF the System***
+
 
 ## Detailed setup
 
@@ -48,7 +60,7 @@ https://ai.robotis.com/omy/dataset_preparation_prerequisites_omy.html
 - go to the following dir: `cd /data/docker/open_manipulator`
 - Start the container
   `./docker/container.sh start`
-- The last line of the result should be " ✔ Container open_manipulator  Running "
+- The last line of the result should be " ✔ Container open_manipulator  Running/Started"
 - Enter the container
   `./docker/container.sh enter`
 - DEACTIVATE THE EMERGENCY BUTTON (E-button)
@@ -74,15 +86,30 @@ https://ai.robotis.com/omy/dataset_preparation_prerequisites_omy.html
   ./container.sh start &&
   ./container.sh enter
   ```
+- In the container, run the zenoh router process
+- ```
+    source /opt/ros/jazzy/setup.bash && \
+    ros2 run rmw_zenoh_cpp rmw_zenohd &
+    ```
 - In the container, check the serial numbers of the 1 or multiple realsense devices you want to use
   `realsense-viewer`
 - Write down the serial numbers and run the command to expose the camera's to the ros2 middleware
 - In the container run the following command (adjust serial numbers and camera types from the example):
   
   ```
-  ros2 launch realsense2_camera rs_multi_camera_launch.py \
-  camera_name1:=D405 serial_no1:="'_230322274265'" device_type1:=d4 \
-  camera_name2:=D435 serial_no2:="'_837212070319'" device_type2:=d4```
+    ros2 launch realsense2_camera rs_multi_camera_launch.py \
+	    camera_name1:=cam_wrist \
+	    camera_namespace1:=camera1 \
+	    serial_no1:=\"'_230322274265'\" \
+	    depth_module.color_profile1:=640,480,30 \
+	    depth_module.depth_profile1:=640,480,30 \
+	    device_type1:=d4 \
+	    camera_name2:=cam_top \
+	    camera_namespace2:=camera2 \
+	    serial_no2:=\"'_837212070319'\" \
+	    depth_module.color_profile2:=640,480,30 \
+	    depth_module.depth_profile2:=640,480,30 \
+	    device_type2:=d4\
   ```
 - Keep the terminal running
 
@@ -120,13 +147,13 @@ omy_f3m_config.yaml example config snippet:
 observation_list:
 
 - cam_wrist
-- cam_overview
+- cam_top
 - state
   
   camera_topic_list:
   
-  - cam_wrist:/camera1/D405/color/image_rect_raw/compressed
-  - cam_overview:/camera2/D435/color/image_raw/compressed
+  - cam_wrist:/camera1/cam_wrist/color/image_rect_raw/compressed
+  - cam_top:/camera2/cam_top/color/image_raw/compressed
 
 [...]
 
@@ -137,13 +164,23 @@ observation_list:
 Realsense D405 (Omy)
 230322274265
 
-Realsense D435
+Realsense D435 known camera serialnumbers:
 233522071994
 837212070319
 
 Example launch command:
 
-ros2 launch realsense2_camera rs_multi_camera_launch.py
-camera_name1:=D405 serial_no1:="'_230322274265'" device_type1:=d4
-camera_name2:=D435 serial_no2:="'_837212070319'" device_type2:=d4
+    ros2 launch realsense2_camera rs_multi_camera_launch.py \
+	    camera_name1:=cam_wrist \
+	    camera_namespace1:=camera1 \
+	    serial_no1:=\"'_230322274265'\" \
+	    depth_module.color_profile1:=640,480,30 \
+	    depth_module.depth_profile1:=640,480,30 \
+	    device_type1:=d4 \
+	    camera_name2:=cam_top \
+	    camera_namespace2:=camera2 \
+	    serial_no2:=\"'_837212070319'\" \
+	    depth_module.color_profile2:=640,480,30 \
+	    depth_module.depth_profile2:=640,480,30 \
+	    device_type2:=d4\
 

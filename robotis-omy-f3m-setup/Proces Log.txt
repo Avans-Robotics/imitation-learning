@@ -1,33 +1,58 @@
-Log 
+Log
 
-============= t/m 16 oktober 2026
-Trainen en inference van de Robotis omy-3fm is nu onder de knie.
+============= up to 16 October 2026
+Training and inference of the Robotis omy-3fm is now under control.
 
-- Opstelling 	- nieuwe HCR opstelling (grijs/rood)
-- Robot		- Robotis OMY-3FR draait Open_manipulator docker 4.1.0 (06 November 2025) nieuweste versie is 5.1.4 van 16 oktober 2026
-- Software	- Robotis OpenManipulator (docker image 5.1.1 arm64 Hub manifest sha256:f925118982cb) en Physical AI server (docker image 1.0.0 + edits om FastRTPS te draaien omdat de robot nog op RTPS draait)
-- Trainingen 	- (Tech specs zie hieronder) Bij de trainingen is een grote varieteit aan parameters gebruikt (verschillende groene formaat blokjes, verschillende posities en soms loslaten van de blokjes om een correctie actie uit te voeren. Ook de aanvliegroute is niet perse naukeurig uitgevoerd, vooral op doelgerichte oppakactie. Ook is hier rekening gehouden met orientatie van het blokje ten opzicht van de robot gripper.
-- Resultaten	- Bij eigenlijk alle trainingen zie je een zeer twijfelachtige oppakactie waarbij de gripper boven het blockje/object blijft hangen en niet goed weet wanneer de robot moet gaan grijpen. Bij langer wachten op actie (+15/30s) lukt het de de robot soms om het blockje op te pakken. Waarbij daarna ongeveer de helft van de tijd het blockje ook weer wordt losgelaten en de actie weer van voor af aan begint. 
+- Setup 	- new HCR setup (grey/red)
+- Robot		- Robotis OMY-3FR runs Open_manipulator docker 4.1.0 (06 November 2025), newest version is 5.1.4 of 16 October 2026
+- Software	- Robotis OpenManipulator (docker image 5.1.1 arm64 Hub manifest sha256:f925118982cb) and Physical AI server (docker image 1.0.0 + edits to run FastRTPS because the robot still runs on RTPS)
+- Training 	- (Tech specs see below) A large variety of parameters was used in the trainings (different sizes of green blocks, different positions and sometimes releasing the blocks to perform a correction action). The approach path was also not necessarily performed accurately, the focus was mainly on a targeted pick-up action. The orientation of the block relative to the robot gripper was also taken into account.
+- Results	- In practically all trainings you see a very hesitant pick-up action where the gripper keeps hovering above the block/object and does not really know when the robot should grasp. When waiting longer for the action (+15/30s) the robot sometimes manages to pick up the block. After that, about half of the time the block is released again and the action starts over from the beginning.
 
-Trainingen gedaan:
+Trainings done:
 
-Policy folder						Trained on		Batch	LR decay	Cameras 		Instruction to use at inference
-smolvla_object_placement_bs8 (trained on 3070)		Object placement 	8	30k		wrist, top		Put green block in red box  
-smolvla_object_placement_bs32_decay20k			Object placement	32	20k		wrist, top		Put green block in red box  
-smolvla_bin_placing_block_bs32_decay20k			Bin placing, split	32	20k		wrist, top, side	one of the 5 phase instructions (move to green block, pickup green block, move to red bin, drop block into red bin, move to save position)
-smolvla_bin_placing_block_single_task_bs32_decay20k	Bin placing, combined	32	20k		wrist, top, side	Combined?	
+Policy folder						Trained on				Batch	LR decay	Cameras 		Instruction to use at inference
+smolvla_object_placement_bs8 (trained on 3070)		Object placement 			8	30k		wrist, top		Put green block in red box
+smolvla_object_placement_bs32_decay20k			Object placement			32	20k		wrist, top		Put green block in red box
+smolvla_bin_placing_block_bs32_decay20k			Bin placing, split			32	20k		wrist, top, side	one of the 5 phase instructions (move to green block, pickup green block, move to red bin, drop block into red bin, move to save position)
+smolvla_bin_placing_block_single_task_bs32_decay20k	Bin placing, combined			32	20k		wrist, top, side	Combined?
+smolvla_block_placing_bs32_decay20k			Block placing, pos 1 (52 ep)		32	20k		wrist, top, side	Pickup green block and place in red bin
+smolvla_block_placing_pos2_bs32_decay20k		Block placing, pos 2 (50 ep)		32	20k		wrist, top, side	Pickup green block and place in red bin
+smolvla_block_placing_combined_bs32_decay20k		Block placing, pos 1+2 (102 ep)		32	20k		wrist, top, side	Pickup green block and place in red bin
+pi0_block_placing_bs4_decay20k				Block placing, pos 1 (52 ep)		4	20k		wrist, top, side	Pickup green block and place in red bin
+pi0_block_placing_combined_bs4_decay20k			Block placing, pos 1+2 (102 ep)		4	20k		wrist, top, side	Pickup green block and place in red bin
+groot_n17_block_placing_dit_bs16			Block placing, pos 1 (52 ep)		16	20k		wrist, top, side	Pickup green block and place in red bin
+groot_n17_block_placing_combined_dit_bs16		Block placing, pos 1+2 (102 ep)		16	20k		wrist, top, side	Pickup green block and place in red bin
+smolvla_block_placing_II_bs32_decay20k			Block placing II, pos 1 (40 ep)		32	20k		wrist, top, side	Pickup green block and place into red bin
+smolvla_block_placing_II_pos2_bs32_decay20k		Block placing II, pos 1+2 (54 ep)	32	20k		wrist, top, side	Pickup green block and place into red bin
+smolvla_block_placing_II_combined_bs32_decay20k		Block placing II, pos 1-3 (69 ep)	32	20k		wrist, top, side	Pickup green block and place into red bin
+smolvla_block_placing_II_pos1-3_bs32_decay20k		Block placing II, pos 1-3 (69 ep)	32	20k		wrist, top, side	Pickup green block and place into red bin
+smolvla_block_placing_II_pos1-5_bs32_decay20k		Block placing II, pos 1-5 (109 ep)	32	20k		wrist, top, side	Pickup green block and place into red bin
+smolvla_block_placing_II_pos1-6_bs32_decay20k		Block placing II, pos 1-6 (128 ep)	32	20k		wrist, top, side	Pickup green block and place into red bin
+pi0_block_placing_II_bs32_decay20k (ailab)		Block placing II, pos 1 (40 ep)		32	20k		wrist, top, side	Pickup green block and place into red bin
+pi0_block_placing_II_bs64accum_decay20k (ailab)		Block placing II, pos 1 (40 ep)		64	20k		wrist, top, side	Pickup green block and place into red bin
+pi0_block_placing_II_pos1-5_bs64accum_decay20k (ailab)	Block placing II, pos 1-5 (109 ep)	64	20k		wrist, top, side	Pickup green block and place into red bin	(training, ready ~7 November)
+pi0_block_placing_II_pos1-6_bs64accum_decay20k (ailab)	Block placing II, pos 1-6 (128 ep)	64	20k		wrist, top, side	Pickup green block and place into red bin	(training, ready ~7 November)
+
+Notes on the trainings:
+- All runs: 20k steps, checkpoint every 5k steps. Unless stated otherwise trained on the HCR HP ZBook Fury G1i (RTX PRO 5000, 24 GB).
+- pi0: lerobot/pi0_old, only the action expert is trained (train_expert_only). On the ZBook only batch 4 fits in memory.
+- (ailab) = trained on the ailab server (RTX PRO 6000, 96 GB). bs64accum = batch 64 as 2 x 32 with gradient accumulation.
+- groot_n17: NVIDIA GR00T N1.7, trained with Isaac-GR00T (bf16 backbone + 8-bit optimizer to fit in 24 GB). Only on the laptop, removed from the Jetson.
+- smolvla_block_placing_II_combined and smolvla_block_placing_II_pos1-3 are trained on the same dataset (pos 1-3).
+- Episodes per position in Block placing II: pos 1: 40, pos 2: 14, pos 3: 15, pos 4: 20, pos 5: 20, pos 6: 19.
 
 Workflow:
-- Trainen op de Nvidia Orin
-- Haal output uit /home/rens/Code/robotis-omy/datasets/deeplink_lerobot_output
-- Zet dataset over naar de HCR HP ZBook Fury G1i
-- Train op de Zbook met Physical AI server (lerobot)
+- Train on the Nvidia Orin
+- Get the output from /home/rens/Code/robotis-omy/datasets/deeplink_lerobot_output
+- Transfer the dataset to the HCR HP ZBook Fury G1i
+- Train on the ZBook with Physical AI server (lerobot)
 
-Trainen:
+Training:
 cd ~/Developer/robotis/physical_ai_tools/lerobot
 
-TOKENIZERS_PARALLELISM=false 
-systemd-inhibit --what=sleep:idle:handle-lid-switch --who=lerobot --why="SmolVLA training" 
+TOKENIZERS_PARALLELISM=false
+systemd-inhibit --what=sleep:idle:handle-lid-switch --who=lerobot --why="SmolVLA training"
 
 .venv/bin/python -m lerobot.scripts.train --policy.path=lerobot/smolvla_base --policy.push_to_hub=false --policy.device=cuda --dataset.repo_id="avanssmingaars/omy_f3m_[DATASET_NAME]" --dataset.root="/home/simon/Developer/robotis_data/avanssmingaars/omy_f3m_[DATASET_NAME]" --wandb.enable=false --batch_size=32 --steps=20000 --policy.scheduler_decay_steps=20000 --save_freq=5000 --num_workers=4 --output_dir=outputs/train/[TRAINING_OUTPUT_NAME] --job_name=[TRAINING_OUTPUT_NAME]_bs32_decay20k
 
@@ -36,25 +61,35 @@ To continue an interrupted run from its last checkpoint:
 
 .venv/bin/python -m lerobot.scripts.train --config_path=outputs/train/[TRAINING_OUTPUT_NAME]/checkpoints/last/pretrained_model/train_config.json --resume=true
 
-For a run that keeps going after you close the terminal, I started it with setsid nohup ... > outputs/train/<name>.log 2>&1 < /dev/null & disown around the same command. 
+For a run that keeps going after you close the terminal, I started it with setsid nohup ... > outputs/train/<name>.log 2>&1 < /dev/null & disown around the same command.
 The full script I used is saved at outputs/train/chain_single_task.sh.
 
-Zet de output in /home/rens/Code/robotis-omy/datasets en daarna in de deeplink (in de git repo, dan heb je altijd een directory ui de git repo ivm dataverlies
-bij mogelijke hard reset van de repo)
+Put the output in /home/rens/Code/robotis-omy/datasets and then in the deeplink (in the git repo, so you always have a directory outside the git repo in case of data loss
+on a possible hard reset of the repo)
 
-Draai de policy in Robotis Inference.
+Run the policy in Robotis Inference.
 
-============= 16 Oktober 2026
+============= 16 October 2026
 
-De huidige policies bleken niet hoger uit te komen van 10% succesrate en dat alleen bij een veel te lange uitvoertijd > 10x de tijd van opname. Na onderzoek naar de betere SmolVLA finetuning technieken:
+The current policies turned out not to get higher than a 10% success rate, and only with a far too long execution time > 10x the recording time. After research into better SmolVLA finetuning techniques:
 https://medium.com/@rahil.lasne/why-your-robot-policy-doesnt-work-and-how-to-find-out-in-30-seconds-43d3beb65888
 https://physicalailab.io/en/smolvla-lerobot-fine-tuning/
-is besloten om de volgende aanpassingen door te voeren:
-- Gebruik extra camera (ook al doorgevoerd met laatste 2 trainingen) en dit keer iets hoger gericht zodat de gripper van de robot iets beter in beeld komt
-- Start eerst met een eenduidige taak met weinig variatie in uitvoering en object. Gekozen voor de donkergroene duplo blok en 1 positie van oppakken en afleggen.
-- 1 Taak (ipv meerdere subtaken)
-- 50 Episodes van 15s (zelfde als voorgaande trainingen) 
-- 10% correctie bewegingen (blokje laten vallen, weer oppakken en in rode bak plaatsen)
-- Dataset naam: Block placing
+it was decided to make the following changes:
+- Use an extra camera (already done in the last 2 trainings) and this time aimed a bit higher so the gripper of the robot is better in view
+- First start with an unambiguous task with little variation in execution and object. Chose the dark green duplo block and 1 position for picking up and placing.
+- 1 Task (instead of multiple subtasks)
+- 50 Episodes of 15s (same as previous trainings)
+- 10% correction movements (dropping the block, picking it up again and placing it in the red bin)
+- Dataset name: Block placing
 - policy name: smolvla_block_placing_bs32_decay20k
-- Opdracht: "Pickup green block and place into red bin"
+- Instruction: "Pickup green block and place into red bin"
+
+============= 6 November 2026
+
+Collected new data for positions 2-6 (dataset Block placing II, pos 2: 14, pos 3: 15, pos 4: 20, pos 5: 20, pos 6: 19 episodes) and trained new policies on combined positions (SmolVLA pos 1-3, pos 1-5 and pos 1-6; pi0 pos 1-5 and pos 1-6 is training on ailab).
+- Positions 1-5 are in the standard 0 degree orientation of the end effector
+- Position 6 is in the -90 degree orientation of the end effector
+- Conclusion: it seems like training more specific positions with 15 episodes (so not random) is generalising the position picking, and even some unknown positions are being grasped (data in the spreadsheet policy-results.ods will follow)
+- Positions outside the boundary of the known positions are still not successful
+- Next test: add more positions on the grid and see if the model generalises even more
+- pi0 vs SmolVLA: at first SmolVLA seems to be performing better (pos 1: SmolVLA 95% success at 5K steps vs pi0 at most 20%), but pi0 with multiple positions is still being tested

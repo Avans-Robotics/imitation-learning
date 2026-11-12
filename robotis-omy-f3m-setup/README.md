@@ -98,18 +98,29 @@ To stop the system, run the stop_omy script
   
   ```
     ros2 launch realsense2_camera rs_multi_camera_launch.py \
-	    camera_name1:=cam_wrist \
-	    camera_namespace1:=camera1 \
-	    serial_no1:=\"'_230322274265'\" \
-	    depth_module.color_profile1:=640,480,30 \
-	    depth_module.depth_profile1:=640,480,30 \
-	    device_type1:=d4 \
-	    camera_name2:=cam_top \
-	    camera_namespace2:=camera2 \
-	    serial_no2:=\"'_837212070319'\" \
-	    depth_module.color_profile2:=640,480,30 \
-	    depth_module.depth_profile2:=640,480,30 \
-	    device_type2:=d4\
+		camera_name1:=cam_wrist \
+		camera_namespace1:=camera1 \
+		serial_no1:=\"'_230322274265'\" \
+		depth_module.color_profile1:=640,480,30 \
+		depth_module.depth_profile1:=640,480,30 \
+		device_type1:=d4 \
+		camera_name2:=cam_top \
+		camera_namespace2:=camera2 \
+		serial_no2:=\"'_837212070319'\" \
+		depth_module.color_profile2:=640,480,30 \
+		rgb_camera.color_profile2:=640,480,30 \
+		depth_module.depth_profile2:=640,480,30 \
+		device_type2:=d4\
+	    
+	ros2 launch realsense2_camera rs_launch.py \
+	ros2 launch realsense2_camera rs_launch.py \
+		camera_name:=cam_side \
+		camera_namespace:=camera3 \
+		serial_no:=\"'_826212070339'\" \
+		depth_module.color_profile:=640,480,30 \
+		rgb_camera.color_profile:=640,480,30 \
+		depth_module.depth_profile:=640,480,30 \
+		device_type:=d4\
   ```
 - Keep the terminal running
 
@@ -144,16 +155,16 @@ To stop the system, run the stop_omy script
 omy_f3m_config.yaml example config snippet:
 
 [...]
-observation_list:
+      observation_list:
+        - cam_wrist
+        - cam_top
+        - cam_side
+        - state
 
-- cam_wrist
-- cam_top
-- state
-  
-  camera_topic_list:
-  
-  - cam_wrist:/camera1/cam_wrist/color/image_rect_raw/compressed
-  - cam_top:/camera2/cam_top/color/image_raw/compressed
+      camera_topic_list:
+        - cam_wrist:/camera1/cam_wrist/color/image_rect_raw/compressed
+        - cam_top:/camera2/cam_top/color/image_raw/compressed
+        - cam_side:/camera3/cam_side/color/image_raw/compressed
 
 [...]
 
@@ -165,10 +176,11 @@ Realsense D405 (Omy)
 230322274265
 
 Realsense D435 known camera serialnumbers:
-233522071994
+826212070339
 837212070319
 
-Example launch command:
+
+Example launch command (multi camera only has max 2 camera's):
 
     ros2 launch realsense2_camera rs_multi_camera_launch.py \
 	    camera_name1:=cam_wrist \
@@ -180,7 +192,16 @@ Example launch command:
 	    camera_name2:=cam_top \
 	    camera_namespace2:=camera2 \
 	    serial_no2:=\"'_837212070319'\" \
-	    depth_module.color_profile2:=640,480,30 \
-	    depth_module.depth_profile2:=640,480,30 \
+	    depth_module.color_profile1:=640,480,30 \
+	    depth_module.depth_profile1:=640,480,30 \
 	    device_type2:=d4\
+	
+	ros2 launch realsense2_camera rs_launch.py \
+		camera_name:=cam_side \
+		camera_namespace:=camera3 \
+		serial_no:=\"'_826212070339'\" \
+		depth_module.color_profile:=640,480,30 \
+		depth_module.depth_profile:=640,480,30 \
+		device_type:=d4\
+
 

@@ -4,6 +4,8 @@
 
 This readme is created to help users of the ROBOTIS-OMY-F3M hardware from Avans Lectorate Robotisation and Sensoring to start training with the robot.
 
+**Scripts, notes and the update runbook live in [Avans-Robotics/robotis-omy-f3m](https://github.com/Avans-Robotics/robotis-omy-f3m)**, the repo of `~/Code/robotis-omy` on the Jetson: the start/stop scripts, `UPDATE_PROCESS.md`, `CONTENT.md` (directory and network map), the process log and the policy results. This folder only keeps this setup guide.
+
 Prerequisites:
 
 * ROBOTIS OMY-F3M with cables
@@ -19,8 +21,8 @@ https://ai.robotis.com/omy/dataset_preparation_prerequisites_omy.html
 - Give power to Robot and leader arm
 - Turn on Robot base computer
 ***Automatic***:
-To start the system, run the start_omy script and point the browser of the PC to `http://localhost`:
-`./start_omy.sh'
+To start the system, run the start_omy_teleop script from [robotis-omy-f3m](https://github.com/Avans-Robotics/robotis-omy-f3m) (start_omy_inference to run a trained policy) and point the browser of the PC to `http://localhost`:
+`./start_omy_teleop.sh`
 To stop the system, run the stop_omy script
 `./stop_omy.sh'
 
